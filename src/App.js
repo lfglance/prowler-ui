@@ -95,6 +95,9 @@ function App() {
             })
           }}>Hide Passing</button>
         )}
+        <div style={{marginTop: '10px'}}>
+          <a href="https://github.com/lfglance/prowler-ui" target="_blank" rel="noreferrer">Source Code</a>
+        </div>
       </header>
       <div className='grid-container'>
         <MyResponsivePie data={summarizeFailuresByAttribute(data, 'REGION')} title='Failures By Region' oc={(e) => handleSliceClick(e, 'REGION')} />
