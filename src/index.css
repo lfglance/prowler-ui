@@ -1,0 +1,98 @@
+body {
+  margin: 0;
+  font-family: 'Lato', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+header {
+  text-align: center;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+
+.grid-item {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 400px; /* Adjust the height as needed */
+}
+
+.chart-wrapper {
+  height: 100%;
+}
+
+ul, li {
+  list-style-type: none;
+}
+
+li {
+  padding: 10px;
+}
+
+.PASS li {
+  background-color: rgba(12, 202, 74, .3);
+}
+
+.FAIL li {
+  background-color: rgba(131, 34, 50, .3);
+}
+
+.finding {
+  border: 1px solid black;
+  margin: 10px 0;
+}
+
+.region {
+  font-weight: 800;
+}
+
+.resourceUID {
+  font-family: monospace;
+  background-color: rgba(243, 234, 244, 1);
+  color: rgb(135, 0, 120);
+  margin: .25em 0;
+  display: inline;
+  padding: .25em;
+}
+
+.statusExtended {
+  padding: .25em 0;
+}
+
+.compliance {
+  font-size: .7em;
+  font-style: italic;
+  margin: .25em 0;
+}
+
+/* .dataTable {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.dataTable span {
+  flex: 1;
+} */
+
+button {
+  margin: .5em;
+  padding: .5em;
+}
+
+.tables {
+  margin: 1em;
+}
