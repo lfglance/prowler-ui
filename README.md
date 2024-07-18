@@ -2,9 +2,7 @@
 
 Small React app to take [Prowler](https://github.com/prowler-cloud/prowler) CSV data and render it in an appealing way with on a simple web page with some basic filtering since the HTML output is not appealing.
 
-<video controls autoplay muted>
-<source src="https://cdn.fs10xer.dev/20240716-interactive.mp4" />
-</video>
+![](https://cdn.fs10xer.dev/20240716-interactive.gif)
 
 There are 2 parts to this app:
 
