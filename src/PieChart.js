@@ -13,7 +13,25 @@ const MyResponsivePie = ({ data, title, oc }) => (
                 cornerRadius={3}
                 activeOuterRadiusOffset={8}
                 borderWidth={1}
-                colors={{ scheme: 'pastel1' }}
+                 colors={(datum) => {
+                     const severityColors = {
+                         'critical': 'rgba(255, 0, 0, 0.35)',    // transparent red
+                         'high': 'rgba(255, 127, 0, 0.35)',      // transparent orange
+                         'medium': 'rgba(255, 255, 0, 0.35)',    // transparent yellow
+                         'low': 'rgba(255, 255, 153, 0.35)'      // transparent light yellow
+                     };
+
+                     // If it's a severity level, return its color
+                     const severityColor = severityColors[datum.id.toLowerCase()];
+                     if (severityColor) return severityColor;
+
+                     // For other fields, generate a random pastel color with transparency
+                     const randomColor = () => Math.floor(Math.random() * 256);
+                     const r = randomColor();
+                     const g = randomColor();
+                     const b = randomColor();
+                     return `rgba(${r}, ${g}, ${b}, 0.35)`;
+                 }}
                 onClick={oc}
                 borderColor={{
                     from: 'color',
