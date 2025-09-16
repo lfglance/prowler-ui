@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 
 import MyResponsivePie from './PieChart';
@@ -6,34 +5,67 @@ import Metadata from './data/metadata.json';
 import RawData from './data/raw_data.json';
 import Table from './Table';
 
-
 function App() {
   const defaultFilters = {
     SHOW_PASSING: true
   }
   const [filters, setFilters] = useState(JSON.stringify(defaultFilters));
   const [data, setData] = useState(RawData);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const applyFilters = (newFilters, searchTermValue) => {
+    const parsedFilters = typeof newFilters === 'string' ? JSON.parse(newFilters) : newFilters;
+
+    const filteredData = RawData.filter((_data) => {
+      // Severity filter
+      if (parsedFilters.SEVERITY && !_data['SEVERITY'].includes(parsedFilters.SEVERITY)) return false;
+
+      // Service Name filter
+      if (parsedFilters.SERVICE_NAME && !_data['SERVICE_NAME'].includes(parsedFilters.SERVICE_NAME)) return false;
+
+      // Region filter
+      if (parsedFilters.REGION && !_data['REGION'].includes(parsedFilters.REGION)) return false;
+
+      // Passing filter
+      if (parsedFilters.SHOW_PASSING === false && _data['STATUS'] === 'PASS') return false;
+
+      // Text search filter
+      if (searchTermValue) {
+        const searchLower = searchTermValue.toLowerCase();
+        const searchFields = [
+          'SEVERITY',
+          'SERVICE_NAME',
+          'REGION',
+          'CHECK_TITLE',
+          'RESOURCE_NAME',
+          'STATUS_EXTENDED',
+          'RISK',
+          'COMPLIANCE'
+        ];
+
+        const matchFound = searchFields.some(field =>
+          _data[field] &&
+          _data[field].toString().toLowerCase().includes(searchLower)
+        );
+
+        if (!matchFound) return false;
+      }
+
+      return true;
+    });
+
+    setData(filteredData);
+  }
 
   const handleFilterChange = (newFilters) => {
     setFilters(JSON.stringify(newFilters));
-    setData(data
-      .filter((_data) => {
-        if ('SEVERITY' in newFilters) return _data['SEVERITY'].includes(newFilters.SEVERITY)
-        return true
-      })
-      .filter((_data) => {
-        if ('SERVICE_NAME' in newFilters) return _data['SERVICE_NAME'].includes(newFilters.SERVICE_NAME)
-        return true
-      })
-      .filter((_data) => {
-        if ('REGION' in newFilters) return _data['REGION'].includes(newFilters.REGION)
-        return true
-      })
-      .filter((_data) => {
-        if ('SHOW_PASSING' in newFilters) return true
-        return true
-      })
-    )
+    applyFilters(newFilters, searchTerm);
+  }
+
+  const handleSearchChange = (e) => {
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
+    applyFilters(JSON.parse(filters), newSearchTerm);
   }
 
   const handleSliceClick = (slice, category) => {
@@ -44,8 +76,9 @@ function App() {
     handleFilterChange(newFilters);
   };
 
-  const clearFilters = (e) => {
+  const clearAllFilters = (e) => {
     e.preventDefault();
+    setSearchTerm('');
     handleFilterChange(defaultFilters);
     setData(RawData);
   }
@@ -62,7 +95,6 @@ function App() {
             return acc;
         }, {});
 
-
     return Object.keys(summary).map(region => ({
         id: region,
         value: summary[region].value
@@ -75,37 +107,46 @@ function App() {
         <h1>Prowler Scan Results</h1>
         <h3>AWS Account {Metadata.ACCOUNT_UID}</h3>
         <p>Prowler Version {Metadata.PROWLER_VERSION}</p>
-        <p>Filters: {filters}</p>
-        <button onClick={clearFilters}>Clear Filters</button>
-        {JSON.parse(filters)['SHOW_PASSING'] === false && (
-          <button href="" onClick={(e) => {
-            e.preventDefault();
-            handleFilterChange({
-              ...JSON.parse(filters),
-              SHOW_PASSING: true
-            })
-          }}>Show Passing</button>
-        )}
-        {JSON.parse(filters)['SHOW_PASSING'] === true && (
-          <button onClick={(e) => {
-            e.preventDefault();
-            handleFilterChange({
-              ...JSON.parse(filters),
-              SHOW_PASSING: false
-            })
-          }}>Hide Passing</button>
-        )}
+
         <div style={{marginTop: '10px'}}>
           <a href="https://github.com/lfglance/prowler-ui" target="_blank" rel="noreferrer">Source Code</a>
         </div>
       </header>
+
       <div className='grid-container'>
-        <MyResponsivePie data={summarizeFailuresByAttribute(data, 'REGION')} title='Failures By Region' oc={(e) => handleSliceClick(e, 'REGION')} />
-        <MyResponsivePie data={summarizeFailuresByAttribute(data, 'SERVICE_NAME')} title='Failures By Service' oc={(e) => handleSliceClick(e, 'SERVICE_NAME')} />
-        <MyResponsivePie data={summarizeFailuresByAttribute(data, 'SEVERITY')} title='Failures By Severity' oc={(e) => handleSliceClick(e, 'SEVERITY')} />
+        <MyResponsivePie
+          data={summarizeFailuresByAttribute(data, 'REGION')}
+          title='Failures By Region'
+          oc={(e) => handleSliceClick(e, 'REGION')}
+        />
+        <MyResponsivePie
+          data={summarizeFailuresByAttribute(data, 'SERVICE_NAME')}
+          title='Failures By Service'
+          oc={(e) => handleSliceClick(e, 'SERVICE_NAME')}
+        />
+        <MyResponsivePie
+          data={summarizeFailuresByAttribute(data, 'SEVERITY')}
+          title='Failures By Severity'
+          oc={(e) => handleSliceClick(e, 'SEVERITY')}
+        />
       </div>
+
       <div className='tables'>
         <h2>Findings</h2>
+        <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+          <input
+            type="text"
+            placeholder="Search findings..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            style={{
+              padding: '5px',
+              width: '300px',
+              marginRight: '10px'
+            }}
+          />
+          <button onClick={clearAllFilters}>Clear All Filters</button>
+        </div>
         <Table data={data} filters={filters} />
       </div>
     </div>
